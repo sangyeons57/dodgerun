@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>피하기2 겜</title>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="1000" height = "1000"></canvas>
+
+		<script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+
+		<script>
+
+			var canvas = document.getElementById("canvas");
+			var ctx = canvas.getContext("2d")
+
+			var width = canvas.width;
+			var height = canvas.height;
+			
+			var X = 500;
+			var Y = 960;
+			var lineWidth = 10;
+
+			var Code = {
+				38: "up",
+				40: "down",
+				39: "right",
+				37: "left",
+			};
+
+			var score = 0; 
+			
+			var ground = function () {
+				ctx.fillStyle = "black";
+				ctx.fillRect(0,0,width,lineWidth);
+				ctx.fillRect(0,0,lineWidth,height);
+				ctx.fillRect(width-10,0,lineWidth,height);
+				ctx.fillRect(0,height-10,width,lineWidth);
+			};
+
+
+			var Black = function() {
+				this.random_b = 10+(Math.floor(Math.random()*98))*10;
+				this.bh = 10;
+				this.i = 0;
+			};
+
+			Black.prototype.draw = function () {
+				ctx.fillStyle = "black";
+				ctx.fillRect(this.random_b,this.bh,10,10);
+			};
+
+			Black.prototype.move = function () {
+				ctx.fillStyle = "black";
+				if (this.bh < height-lineWidth) {
+					ctx.clearRect(this.random_b ,this.bh,10,10);
+					this.bh += 10;
+					ctx.fillRect(this.random_b,this.bh,10,10);
+				}
+			};
+
+			Black.prototype.check = function(px,py) {
+				if (px <= this.random_b){
+					if (px +20 > this.random_b){
+						if (py <= this.bh){
+							if (py + 21 > this.bh){
+								clearInterval(set);
+								clearInterval(set1);
+								setTimeout(function(){
+									ctx.clearRect(0,0,width,height);
+									ctx.font = '50px black'
+									ctx.fillText("End",width/2,height/2);
+									ctx.fillText(`score: ${score}`,width/2-40,height/2+50);
+								},500);
+							}
+						}
+					}
+				}
+			}
+
+
+			black = [];
+
+			for (var i1 = 0; i1<900; i1++) {
+				black[i1] = new Black();
+			}
+
+			ground();
+
+			var s = "up";
+
+			ctx.fillStyle = "blue";
+			ctx.fillRect(X ,Y ,20,20);
+			var set1 = setInterval(function() {
+				ctx.clearRect(X,Y,20,20);
+				$("body").keydown(function(event){
+					s = Code[event.keyCode];
+					return s
+				});
+				if (s === "right"){
+					X += 10;
+					if (X === width - lineWidth*2) {
+						X = lineWidth;
+					}
+				}else if (s === "left"){
+					X -= 10;
+					if (X === lineWidth) {
+						X = width-lineWidth*3;
+					}
+				}else if (s === "up"){
+					Y -= 10;
+					if (Y === lineWidth) {
+						Y = height-lineWidth*2;
+					}
+				}else if (s === "down"){
+					Y += 10;
+					if (Y === height - lineWidth*3) {
+						Y -=10
+					}
+				}
+				ctx.fillRect(X,Y,20,20);
+			}, 100);
+
+			var i=0;
+
+			var set = setInterval(function () {
+				score += 1;
+				i+=1;
+				black[i].draw();
+				for (var t = 0; t < i-1; t++){
+					black[t].move();
+					black[t].check(X,Y);
+				}
+			},100);
+
+		</script>
+	</body>
+</html>
